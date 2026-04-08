@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bogota:      #C41230;
+  --color-bogota-dark: #9E0E25;
+  --color-dist:        #1B3A6B;
+  --color-dist-light:  #2A5298;
+  --color-sena:        #007A3D;
+  --color-sena-dark:   #005C2E;
+}

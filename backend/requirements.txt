@@ -1,0 +1,11 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+sqlalchemy
+psycopg2-binary
+python-jose[cryptography]==3.3.0
+bcrypt
+python-multipart==0.0.9
+pandas
+openpyxl
+python-dotenv==1.0.1
+pydantic-settings==2.2.1
