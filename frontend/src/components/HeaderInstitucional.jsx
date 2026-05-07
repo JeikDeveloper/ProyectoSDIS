@@ -1,6 +1,14 @@
 export default function HeaderInstitucional() {
   return (
     <header role="banner">
+      {/* Skip link: visible solo al recibir foco por teclado (WCAG 2.4.1) */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:bg-dist focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold focus:text-sm focus:shadow-lg"
+      >
+        Saltar al contenido principal
+      </a>
+
       {/* Header principal */}
       <div className="bg-bogota text-white px-4 py-6 shadow-md">
         <div className="max-w-6xl mx-auto flex items-center gap-6">

@@ -26,20 +26,23 @@ export default function TarjetaActividad({ actividad, onClick }) {
 
   return (
     <article
-      className={`bg-white rounded-xl border border-gray-200 border-t-4 ${estilos.borde} shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer flex flex-col h-full group`}
-      aria-label={`Ver detalle: ${titulo}`}
-      onClick={onClick}
-      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClick()}
-      tabIndex={0}
-      role="button"
+      className={`relative bg-white rounded-xl border border-gray-200 border-t-4 ${estilos.borde} shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all flex flex-col h-full group focus-within:ring-2 focus-within:ring-bogota focus-within:ring-offset-2`}
     >
-      <div className="p-5 flex flex-col flex-1 gap-3">
+      {/* Botón de cobertura: hace toda la tarjeta clickeable y teclado-accesible */}
+      <button
+        className="absolute inset-0 z-0 cursor-pointer rounded-xl focus:outline-none"
+        onClick={onClick}
+        aria-label={`Ver detalle de ${tipo}: ${titulo}`}
+      />
+
+      {/* Contenido visual (pointer-events-none para que los clics pasen al botón) */}
+      <div className="relative z-10 p-5 flex flex-col flex-1 gap-3 pointer-events-none select-none">
         {/* Tipo + organizador */}
         <div className="flex items-center justify-between gap-2">
           <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${estilos.badge}`}>
             {tipo}
           </span>
-          <span className="text-xs text-gray-400 font-medium">{organizador}</span>
+          <span className="text-xs text-gray-600 font-medium">{organizador}</span>
         </div>
 
         {/* Título */}
@@ -49,7 +52,7 @@ export default function TarjetaActividad({ actividad, onClick }) {
 
         {/* Descripción */}
         {descripcion && (
-          <p className="text-xs text-gray-500 leading-relaxed line-clamp-2">{descripcion}</p>
+          <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">{descripcion}</p>
         )}
 
         {/* Datos */}

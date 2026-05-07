@@ -78,6 +78,32 @@ export default function MapaBogota({ localidadSeleccionada, onLocalidadClick }) 
           },
         }).addTo(mapa)
 
+        // Accesibilidad de teclado: cada polígono SVG recibe tabIndex, role y handlers
+        capa.eachLayer(layer => {
+          const nombre = getNombre(layer.feature?.properties)
+          const el = layer.getElement()
+          if (!el) return
+
+          el.setAttribute('tabindex', '0')
+          el.setAttribute('role', 'button')
+          el.setAttribute('aria-label', `Localidad ${nombre}. Presiona Enter o Espacio para seleccionar`)
+
+          el.addEventListener('keydown', (evt) => {
+            if (evt.key === 'Enter' || evt.key === ' ') {
+              evt.preventDefault()
+              callbackRef.current(nombre)
+            }
+          })
+          el.addEventListener('focus', () => {
+            if (nombre !== callbackRef._selected)
+              layer.setStyle({ fillColor: '#bfdbfe', fillOpacity: 0.65, weight: 2 })
+            layer.bringToFront()
+          })
+          el.addEventListener('blur', () => {
+            capa.resetStyle(layer)
+          })
+        })
+
         geoLayerRef.current = capa
         mapa.fitBounds(capa.getBounds(), { padding: [15, 15] })
       })
@@ -126,8 +152,8 @@ export default function MapaBogota({ localidadSeleccionada, onLocalidadClick }) 
     return (
       <div style={{ height: '480px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f3f4f6', borderRadius: '12px', border: '2px dashed #d1d5db' }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ color: '#6b7280', fontWeight: 500, fontSize: '14px' }}>Mapa no disponible</p>
-          <p style={{ color: '#9ca3af', fontSize: '12px', marginTop: '4px' }}>
+          <p style={{ color: '#374151', fontWeight: 500, fontSize: '14px' }}>Mapa no disponible</p>
+          <p style={{ color: '#6b7280', fontSize: '12px', marginTop: '4px' }}>
             Coloca <code style={{ background: '#e5e7eb', padding: '1px 4px', borderRadius: '3px' }}>localidades.geojson</code> en <code style={{ background: '#e5e7eb', padding: '1px 4px', borderRadius: '3px' }}>frontend/public/</code>
           </p>
         </div>
@@ -140,16 +166,25 @@ export default function MapaBogota({ localidadSeleccionada, onLocalidadClick }) 
       <div
         ref={contenedorRef}
         style={{ height: '480px', width: '100%', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}
-        aria-label="Mapa interactivo de localidades de Bogotá"
+        aria-label="Mapa interactivo de localidades de Bogotá. Usa Tab para moverte entre localidades y Enter o Espacio para seleccionar."
+        role="application"
       />
-      <div style={{ position: 'absolute', bottom: '12px', left: '12px', zIndex: 1000, background: 'rgba(255,255,255,0.92)', borderRadius: '8px', padding: '8px 12px', fontSize: '11px', border: '1px solid #e5e7eb', pointerEvents: 'none', lineHeight: 2 }}>
+      {/* Instrucciones para usuarios de teclado (visibles al recibir foco en el mapa) */}
+      <p className="sr-only" aria-live="polite">
+        {localidadSeleccionada
+          ? `Localidad seleccionada: ${localidadSeleccionada}`
+          : 'Ninguna localidad seleccionada. Usa Tab para navegar las localidades del mapa.'}
+      </p>
+      <div style={{ position: 'absolute', bottom: '12px', left: '12px', zIndex: 1000, background: 'rgba(255,255,255,0.92)', borderRadius: '8px', padding: '8px 12px', fontSize: '11px', border: '1px solid #e5e7eb', pointerEvents: 'none', lineHeight: 2 }} aria-hidden="true">
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: 12, height: 12, borderRadius: 3, background: '#C41230', display: 'inline-block' }} />
-          <span style={{ color: '#374151' }}>Seleccionada</span>
+          {/* Cuadrado rojo con borde negro — doble indicador: color + borde */}
+          <span style={{ width: 12, height: 12, borderRadius: 3, background: '#C41230', border: '2px solid #7f1d1d', display: 'inline-block' }} />
+          <span style={{ color: '#374151', fontWeight: 600 }}>● Seleccionada</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ width: 12, height: 12, borderRadius: 3, background: '#bfdbfe', display: 'inline-block' }} />
-          <span style={{ color: '#374151' }}>Al pasar el cursor</span>
+          {/* Cuadrado azul sin borde — diferente de seleccionada por borde y símbolo */}
+          <span style={{ width: 12, height: 12, borderRadius: 3, background: '#bfdbfe', border: '1px solid #93c5fd', display: 'inline-block' }} />
+          <span style={{ color: '#374151' }}>○ Al pasar el cursor</span>
         </div>
       </div>
     </div>

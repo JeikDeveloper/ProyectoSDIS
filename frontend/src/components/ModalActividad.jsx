@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 const TIPO_ESTILOS = {
   Taller:    'bg-dist/10 text-dist border-dist/20',
@@ -6,12 +6,43 @@ const TIPO_ESTILOS = {
   Actividad: 'bg-sena/10 text-sena border-sena/20',
 }
 
+const SELECTOR_FOCUSABLE =
+  'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+
 export default function ModalActividad({ actividad, onCerrar }) {
-  // Cerrar con Escape
+  const panelRef       = useRef(null)
+  const focoAnterior   = useRef(null)
+
+  // Guardar foco anterior, enfocar primer elemento del modal al abrir
   useEffect(() => {
-    function onKey(e) { if (e.key === 'Escape') onCerrar() }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    focoAnterior.current = document.activeElement
+    const primero = panelRef.current?.querySelectorAll(SELECTOR_FOCUSABLE)?.[0]
+    primero?.focus()
+    return () => { focoAnterior.current?.focus() }
+  }, [])
+
+  // Trampa de foco + cierre con Escape
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === 'Escape') { onCerrar(); return }
+      if (e.key !== 'Tab') return
+
+      const focusables = Array.from(
+        panelRef.current?.querySelectorAll(SELECTOR_FOCUSABLE) ?? []
+      )
+      if (!focusables.length) return
+
+      const primero = focusables[0]
+      const ultimo  = focusables[focusables.length - 1]
+
+      if (e.shiftKey) {
+        if (document.activeElement === primero) { e.preventDefault(); ultimo.focus() }
+      } else {
+        if (document.activeElement === ultimo)  { e.preventDefault(); primero.focus() }
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
   }, [onCerrar])
 
   // Bloquear scroll del body
@@ -57,7 +88,7 @@ export default function ModalActividad({ actividad, onCerrar }) {
       />
 
       {/* Panel */}
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+      <div ref={panelRef} className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
 
         {/* Franja superior por tipo */}
         <div className={`h-1.5 w-full ${tipo === 'Taller' ? 'bg-dist' : tipo === 'Evento' ? 'bg-bogota' : 'bg-sena'}`} aria-hidden="true" />
@@ -69,7 +100,7 @@ export default function ModalActividad({ actividad, onCerrar }) {
               <span className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${badgeClass}`}>
                 {tipo}
               </span>
-              <span className="text-xs text-gray-400 font-medium">{organizador}</span>
+              <span className="text-xs text-gray-600 font-medium">{organizador}</span>
             </div>
             <button
               onClick={onCerrar}
@@ -102,7 +133,7 @@ export default function ModalActividad({ actividad, onCerrar }) {
               ...(horaTexto ? [{ label: 'Horario', valor: horaTexto }] : []),
             ].map(({ label, valor }) => (
               <div key={label} className="flex gap-3 text-sm">
-                <dt className="w-20 shrink-0 font-semibold text-gray-500 pt-0.5">{label}</dt>
+                <dt className="w-20 shrink-0 font-semibold text-gray-600 pt-0.5">{label}</dt>
                 <dd className="text-gray-800 leading-snug">{valor}</dd>
               </div>
             ))}

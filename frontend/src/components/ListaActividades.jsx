@@ -45,8 +45,8 @@ export default function ListaActividades({ actividades, localidad, busqueda, car
         <div className="w-16 h-16 rounded-full bg-bogota/10 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
           <span className="text-bogota text-2xl font-bold">?</span>
         </div>
-        <p className="text-gray-500 font-medium">Selecciona una localidad</p>
-        <p className="text-gray-400 text-sm mt-1">Elige tu localidad en el selector para ver las actividades disponibles.</p>
+        <p className="text-gray-700 font-medium">Selecciona una localidad</p>
+        <p className="text-gray-600 text-sm mt-1">Elige tu localidad en el selector para ver las actividades disponibles.</p>
       </div>
     )
   }
@@ -68,8 +68,8 @@ export default function ListaActividades({ actividades, localidad, busqueda, car
         <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4" aria-hidden="true">
           <span className="text-gray-400 text-2xl">—</span>
         </div>
-        <p className="text-gray-600 font-medium">Sin actividades en {localidad}</p>
-        <p className="text-gray-400 text-sm mt-1">Aún no hay actividades registradas para esta localidad.</p>
+        <p className="text-gray-700 font-medium">Sin actividades en {localidad}</p>
+        <p className="text-gray-600 text-sm mt-1">Aún no hay actividades registradas para esta localidad.</p>
       </div>
     )
   }
@@ -77,8 +77,8 @@ export default function ListaActividades({ actividades, localidad, busqueda, car
   if (filtradas.length === 0) {
     return (
       <div className="text-center py-16">
-        <p className="text-gray-500 font-medium">Sin resultados para "{busqueda}"</p>
-        <p className="text-gray-400 text-sm mt-1">Intenta con otro término de búsqueda.</p>
+        <p className="text-gray-700 font-medium">Sin resultados para "{busqueda}"</p>
+        <p className="text-gray-600 text-sm mt-1">Intenta con otro término de búsqueda.</p>
       </div>
     )
   }
