@@ -3,7 +3,9 @@ const BASE_URL = '/api'
 async function request(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, options)
   if (!res.ok) {
-    const error = await res.json().catch(() => ({ detail: res.statusText }))
+    const error = await res.json()
+    // .catch(() => ({ detail: res.statusText }))
+    console.log(error)
     throw new Error(error.detail || 'Error en el servidor')
   }
   return res.json()
@@ -15,6 +17,19 @@ export async function getLocalidades() {
 
 export async function getActividades(localidad) {
   return request(`/actividades?localidad=${encodeURIComponent(localidad)}`)
+}
+
+export async function sendActividad(actividad) {
+  const response = await fetch(`${BASE_URL}/actividad/audio`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(actividad),
+  });
+
+  if (!response.ok) throw new Error('Error al generar el audio');
+
+  const blob = await response.blob();         // ← recibe el MP3 como blob
+  return URL.createObjectURL(blob);           // ← lo convierte en URL reproducible
 }
 
 export async function login(nombreUsuario, password) {
