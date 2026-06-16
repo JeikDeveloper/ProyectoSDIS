@@ -85,7 +85,7 @@ export default function ListaActividades({ actividades, localidad, busqueda, car
 
   return (
     <section aria-label={`Actividades en ${localidad}`}>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="list">
+      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2" role="list">
         {filtradas.map((act) => (
           <li key={act.id}>
             <TarjetaActividad actividad={act} onClick={() => onSeleccionar(act)} />
