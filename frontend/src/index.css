@@ -1,10 +1,27 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bogota:      #C41230;
-  --color-bogota-dark: #9E0E25;
-  --color-dist:        #1B3A6B;
-  --color-dist-light:  #2A5298;
-  --color-sena:        #007A3D;
+  /* Tipografía oficial Manual Marca Ciudad Bogotá (Arial: piezas de divulgación/papelería) */
+  --font-sans: Arial, "Helvetica Neue", Helvetica, sans-serif;
+
+  /* Paleta oficial Marca Ciudad / Escudo Alcaldía Mayor de Bogotá */
+  --color-bogota:      #E4032E;  /* Rojo Marca Ciudad oficial */
+  --color-bogota-dark: #B80226;
+  --color-dist:        #225495;  /* Azul Escudo Alcaldía oficial (Pantone 2728C) */
+  --color-dist-light:  #2E6CB8;
+  --color-amarillo:    #FAB62D;  /* Amarillo Marca Ciudad oficial — solo acento, nunca texto sobre él */
+  --color-sena:        #007A3D;  /* Verde institucional SENA (entidad aparte) */
   --color-sena-dark:   #005C2E;
+}
+
+/* Accesibilidad CC20 / WCAG 2.3.3: respetar preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

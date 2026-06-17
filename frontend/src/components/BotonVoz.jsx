@@ -31,6 +31,7 @@ const BotonVoz = ({ onResult, onSearch, disabled = false }) => {
         }
         className={`
           relative p-2 rounded-full transition-all duration-200
+          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bogota focus-visible:ring-offset-1
           ${
             disabled
               ? 'opacity-40 bg-gray-100 text-gray-400 pointer-events-none'
@@ -86,6 +87,7 @@ const BotonVoz = ({ onResult, onSearch, disabled = false }) => {
       {/* Error en tooltip */}
       {error && (
         <div
+          role="alert"
           className="
       absolute top-10 right-0 z-20 w-56
       bg-red-50 border border-red-200

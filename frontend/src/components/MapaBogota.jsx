@@ -31,9 +31,9 @@ function getNombre(props) {
 
 function estiloFeature(seleccionado) {
   return {
-    fillColor:   seleccionado ? '#C41230' : '#e2e8f0',
+    fillColor:   seleccionado ? '#E4032E' : '#e2e8f0',
     fillOpacity: seleccionado ? 0.75 : 0.5,
-    color:       seleccionado ? '#9E0E25' : '#94a3b8',
+    color:       seleccionado ? '#B80226' : '#94a3b8',
     weight:      seleccionado ? 2.5 : 1,
   }
 }
@@ -178,7 +178,7 @@ export default function MapaBogota({ localidadSeleccionada, onLocalidadClick }) 
       <div style={{ position: 'absolute', bottom: '12px', left: '12px', zIndex: 1000, background: 'rgba(255,255,255,0.92)', borderRadius: '8px', padding: '8px 12px', fontSize: '11px', border: '1px solid #e5e7eb', pointerEvents: 'none', lineHeight: 2 }} aria-hidden="true">
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           {/* Cuadrado rojo con borde negro — doble indicador: color + borde */}
-          <span style={{ width: 12, height: 12, borderRadius: 3, background: '#C41230', border: '2px solid #7f1d1d', display: 'inline-block' }} />
+          <span style={{ width: 12, height: 12, borderRadius: 3, background: '#E4032E', border: '2px solid #B80226', display: 'inline-block' }} />
           <span style={{ color: '#374151', fontWeight: 600 }}>● Seleccionada</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

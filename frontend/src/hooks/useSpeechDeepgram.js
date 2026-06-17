@@ -10,9 +10,10 @@ const useSpeechDeepgram = ({ onResult, onSearch, disabled = false }) => {
   useEffect(() => {
     if (!error) return;
 
+    // CC19/WCAG 2.2.1: tiempo suficiente para leer el aviso (incl. lectores de pantalla)
     const timer = setTimeout(() => {
       setError(null);
-    }, 3000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [error]);

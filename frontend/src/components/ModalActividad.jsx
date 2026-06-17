@@ -104,7 +104,7 @@ export default function ModalActividad({ actividad, onCerrar }) {
             </div>
             <button
               onClick={onCerrar}
-              className="shrink-0 text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
+              className="shrink-0 text-gray-500 hover:text-gray-700 transition-colors p-1 rounded-lg hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bogota"
               aria-label="Cerrar detalle"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">

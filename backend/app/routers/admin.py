@@ -9,6 +9,7 @@ from app.dependencies import get_current_user
 from app.models.usuario import Usuario
 from app.services.etl import procesar_excel, procesar_secretaria
 from app.services.etl_sena import procesar_sena
+from app.services.etl_cdc import procesar_cdc
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -114,3 +115,51 @@ def upload_sena(
             raise HTTPException(status_code=400, detail="fecha_fin inválida, use YYYY-MM-DD")
 
     return procesar_sena(file.file.read(), localidad, fi, ff, db, dry_run=False)
+
+
+# ---------------------------------------------------------------------------
+# CDC (Centros de Desarrollo Comunitario): validar y cargar
+# ---------------------------------------------------------------------------
+
+def _parse_fechas_cdc(fecha_inicio: str, fecha_fin: Optional[str]):
+    try:
+        fi = date.fromisoformat(fecha_inicio)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="fecha_inicio inválida, use YYYY-MM-DD")
+    ff = None
+    if fecha_fin:
+        try:
+            ff = date.fromisoformat(fecha_fin)
+        except ValueError:
+            raise HTTPException(status_code=400, detail="fecha_fin inválida, use YYYY-MM-DD")
+    return fi, ff
+
+
+@router.post("/cdc/preview")
+def preview_cdc(
+    file: UploadFile = File(...),
+    localidad: str = Form(...),
+    fecha_inicio: str = Form(...),
+    fecha_fin: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Valida la oferta CDC y devuelve preview sin insertar."""
+    _validar_extension(file.filename)
+    fi, ff = _parse_fechas_cdc(fecha_inicio, fecha_fin)
+    return procesar_cdc(file.file.read(), localidad, fi, ff, db, dry_run=True)
+
+
+@router.post("/cdc/upload")
+def upload_cdc(
+    file: UploadFile = File(...),
+    localidad: str = Form(...),
+    fecha_inicio: str = Form(...),
+    fecha_fin: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+    current_user: Usuario = Depends(get_current_user),
+):
+    """Inserta las actividades CDC en la BD."""
+    _validar_extension(file.filename)
+    fi, ff = _parse_fechas_cdc(fecha_inicio, fecha_fin)
+    return procesar_cdc(file.file.read(), localidad, fi, ff, db, dry_run=False)

@@ -90,6 +90,34 @@ export async function uploadSena(file, token, { localidad, fechaInicio, fechaFin
   })
 }
 
+// ── CDC (Centros de Desarrollo Comunitario) ──────────────────────────────────
+
+export async function previewCdc(file, token, { localidad, fechaInicio, fechaFin }) {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('localidad', localidad)
+  formData.append('fecha_inicio', fechaInicio)
+  if (fechaFin) formData.append('fecha_fin', fechaFin)
+  return request('/admin/cdc/preview', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  })
+}
+
+export async function uploadCdc(file, token, { localidad, fechaInicio, fechaFin }) {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('localidad', localidad)
+  formData.append('fecha_inicio', fechaInicio)
+  if (fechaFin) formData.append('fecha_fin', fechaFin)
+  return request('/admin/cdc/upload', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: formData,
+  })
+}
+
 // Alias de compatibilidad
 export async function uploadExcel(file, token) {
   return uploadSecretaria(file, token)

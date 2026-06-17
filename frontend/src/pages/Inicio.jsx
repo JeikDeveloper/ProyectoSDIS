@@ -98,7 +98,7 @@ export default function Inicio() {
             </label>
             <div className="relative">
               <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -119,7 +119,7 @@ export default function Inicio() {
                 value={busqueda}
                 onChange={(e) => setBusqueda(e.target.value)}
                 disabled={!localidadSeleccionada || cargando}
-                className="w-full rounded-lg border-2 border-gray-500 bg-white pl-9 pr-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-bogota focus:outline-none focus:ring-2 focus:ring-bogota/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="w-full rounded-lg border-2 border-gray-500 bg-white pl-9 pr-4 py-2.5 text-gray-900 placeholder-gray-500 focus:border-bogota focus:outline-none focus:ring-2 focus:ring-bogota/20 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 aria-label="Buscar por palabra clave"
               />
               <div className="absolute right-2 top-1/2 -translate-y-1/2">
@@ -208,6 +208,14 @@ export default function Inicio() {
           <span className="opacity-75">
             Plataforma informativa de actividades por localidad
           </span>
+        </p>
+        <p className="mt-1.5">
+          <a
+            href="/sitemap.xml"
+            className="underline underline-offset-2 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:rounded"
+          >
+            Mapa del sitio
+          </a>
         </p>
       </footer>
     </div>

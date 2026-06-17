@@ -89,12 +89,21 @@ async def generarAudio(request: Request):
             f"{hora}"
         )
 
-        # Creacion el audio de la actividad
-        audio_actividad = await generar_audio_actividad(texto)
+        # Creación del audio de la actividad (con manejo de error si el servicio de voz falla)
+        try:
+            audio_actividad = await generar_audio_actividad(texto)
 
-        # Almacenar el audio en la ruta establecida
-        with open(ruta_archivo, "wb") as f:
-            f.write(audio_actividad)
+            # Almacenar el audio en la ruta establecida
+            with open(ruta_archivo, "wb") as f:
+                f.write(audio_actividad)
+        except Exception as e:
+            # Evitar dejar un archivo corrupto o incompleto en la caché
+            if os.path.exists(ruta_archivo):
+                os.remove(ruta_archivo)
+            raise HTTPException(
+                status_code=502,
+                detail="No se pudo generar el audio de la actividad. Verifica la configuración del servicio de voz (DEEPGRAM_API_KEY).",
+            ) from e
 
         return FileResponse(ruta_archivo, media_type="audio/mpeg", filename=f"{actividad['id']}.mp3")
 

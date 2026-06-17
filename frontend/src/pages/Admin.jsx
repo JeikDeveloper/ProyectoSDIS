@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { login, getLocalidades, previewSecretaria, uploadSecretaria, previewSena, uploadSena } from '../services/api'
+import { login, getLocalidades, previewSecretaria, uploadSecretaria, previewSena, uploadSena, previewCdc, uploadCdc } from '../services/api'
 import HeaderInstitucional from '../components/HeaderInstitucional'
 
 // ── Constantes ───────────────────────────────────────────────────────────────
@@ -253,6 +253,10 @@ function SeccionSena({ token, localidades }) {
         </p>
       </div>
 
+      <p className="text-xs text-gray-600">
+        Los campos marcados con <span className="text-bogota font-semibold">*</span> son obligatorios.
+      </p>
+
       <div className="grid sm:grid-cols-3 gap-4">
         <div>
           <label htmlFor="sena-localidad" className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -261,6 +265,7 @@ function SeccionSena({ token, localidades }) {
           <select
             id="sena-localidad"
             required
+            aria-required="true"
             value={localidad}
             onChange={e => setLocalidad(e.target.value)}
             className="w-full rounded-lg border-2 border-gray-500 bg-white px-3 py-2.5 text-gray-900 font-medium focus:border-dist focus:outline-none focus:ring-2 focus:ring-dist/20 transition-colors"
@@ -280,6 +285,7 @@ function SeccionSena({ token, localidades }) {
             id="sena-fecha-inicio"
             type="date"
             required
+            aria-required="true"
             value={fechaInicio}
             onChange={e => setFechaInicio(e.target.value)}
             className="w-full rounded-lg border-2 border-gray-500 bg-white px-3 py-2.5 text-gray-900 focus:border-dist focus:outline-none focus:ring-2 focus:ring-dist/20 transition-colors"
@@ -464,6 +470,177 @@ function SeccionSecretaria({ token }) {
 }
 
 
+// ── Sección CDC (Centros de Desarrollo Comunitario) ──────────────────────────
+
+function SeccionCdc({ token, localidades }) {
+  const [archivo,     setArchivo]     = useState(null)
+  const [localidad,   setLocalidad]   = useState('')
+  const [fechaInicio, setFechaInicio] = useState('')
+  const [fechaFin,    setFechaFin]    = useState('')
+  const [etapa,       setEtapa]       = useState('formulario') // formulario | vista_previa | resultado
+  const [validando,   setValidando]   = useState(false)
+  const [cargando,    setCargando]    = useState(false)
+  const [preview,     setPreview]     = useState(null)
+  const [resultado,   setResultado]   = useState(null)
+  const [errorForm,   setErrorForm]   = useState(null)
+
+  const params = { localidad, fechaInicio, fechaFin: fechaFin || undefined }
+
+  async function handleValidar(e) {
+    e.preventDefault()
+    if (!archivo || !localidad || !fechaInicio) {
+      setErrorForm('Completa archivo, localidad y fecha de inicio por defecto antes de validar.')
+      return
+    }
+    setErrorForm(null)
+    setValidando(true)
+    try {
+      const data = await previewCdc(archivo, token, params)
+      setPreview(data)
+      setEtapa('vista_previa')
+    } catch (err) {
+      setErrorForm(err.message)
+    } finally {
+      setValidando(false)
+    }
+  }
+
+  async function handleConfirmar() {
+    setCargando(true)
+    try {
+      const data = await uploadCdc(archivo, token, params)
+      setResultado(data)
+      setEtapa('resultado')
+    } catch (err) {
+      setPreview(prev => ({ ...prev, error: err.message }))
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  function resetear() {
+    setArchivo(null)
+    setLocalidad('')
+    setFechaInicio('')
+    setFechaFin('')
+    setPreview(null)
+    setResultado(null)
+    setErrorForm(null)
+    setEtapa('formulario')
+  }
+
+  if (etapa === 'resultado') {
+    return <PanelResultado resultado={resultado} onNuevaCarga={resetear} />
+  }
+
+  if (etapa === 'vista_previa') {
+    return (
+      <PanelVistaPravia
+        preview={preview}
+        onConfirmar={handleConfirmar}
+        onVolver={() => setEtapa('formulario')}
+        cargando={cargando}
+      />
+    )
+  }
+
+  return (
+    <form onSubmit={handleValidar} className="space-y-5" noValidate>
+      <div>
+        <label htmlFor="cdc-archivo" className="block text-sm font-semibold text-gray-700 mb-2">
+          Archivo Excel — Oferta disponible CDC (.xlsx)
+        </label>
+        <input
+          id="cdc-archivo"
+          type="file"
+          accept=".xlsx"
+          onChange={e => { setArchivo(e.target.files[0] ?? null); setErrorForm(null) }}
+          className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-5 file:rounded-lg file:border-0 file:bg-bogota file:text-white file:font-medium file:cursor-pointer hover:file:bg-bogota-dark transition-colors"
+        />
+        <p className="text-xs text-gray-600 mt-1.5">
+          Oferta de los Centros de Desarrollo Comunitario. Se carga con tipo <em>Actividad</em> y
+          organizador <em>Secretaría</em>; las fechas se toman del archivo cuando existen.
+        </p>
+      </div>
+
+      <p className="text-xs text-gray-600">
+        Los campos marcados con <span className="text-bogota font-semibold">*</span> son obligatorios.
+      </p>
+
+      <div className="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label htmlFor="cdc-localidad" className="block text-sm font-semibold text-gray-700 mb-1.5">
+            Localidad <span className="text-bogota" aria-hidden="true">*</span>
+          </label>
+          <select
+            id="cdc-localidad"
+            required
+            aria-required="true"
+            value={localidad}
+            onChange={e => setLocalidad(e.target.value)}
+            className="w-full rounded-lg border-2 border-gray-500 bg-white px-3 py-2.5 text-gray-900 font-medium focus:border-bogota focus:outline-none focus:ring-2 focus:ring-bogota/20 transition-colors"
+          >
+            <option value="">— Selecciona —</option>
+            {localidades.map(loc => (
+              <option key={loc.id} value={loc.nombre}>{loc.nombre}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label htmlFor="cdc-fecha-inicio" className="block text-sm font-semibold text-gray-700 mb-1.5">
+            Fecha inicio por defecto <span className="text-bogota" aria-hidden="true">*</span>
+          </label>
+          <input
+            id="cdc-fecha-inicio"
+            type="date"
+            required
+            aria-required="true"
+            value={fechaInicio}
+            onChange={e => setFechaInicio(e.target.value)}
+            className="w-full rounded-lg border-2 border-gray-500 bg-white px-3 py-2.5 text-gray-900 focus:border-bogota focus:outline-none focus:ring-2 focus:ring-bogota/20 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="cdc-fecha-fin" className="block text-sm font-semibold text-gray-700 mb-1.5">
+            Fecha fin por defecto <span className="text-gray-500 font-normal">(opcional)</span>
+          </label>
+          <input
+            id="cdc-fecha-fin"
+            type="date"
+            value={fechaFin}
+            min={fechaInicio || undefined}
+            onChange={e => setFechaFin(e.target.value)}
+            className="w-full rounded-lg border-2 border-gray-500 bg-white px-3 py-2.5 text-gray-900 focus:border-bogota focus:outline-none focus:ring-2 focus:ring-bogota/20 transition-colors"
+          />
+        </div>
+      </div>
+
+      <p className="text-xs text-gray-500">
+        Las fechas del archivo se respetan cuando existen; la fecha por defecto se usa solo en
+        actividades marcadas como “POR CONFIRMAR”.
+      </p>
+
+      {errorForm && (
+        <p className="text-sm text-bogota bg-bogota/5 border border-bogota/20 rounded-lg px-4 py-3 font-medium"
+           role="alert" aria-live="assertive" aria-atomic="true">
+          {errorForm}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={validando || !archivo || !localidad || !fechaInicio}
+        className="bg-bogota hover:bg-bogota-dark disabled:opacity-40 text-white font-semibold px-7 py-2.5 rounded-lg transition-colors shadow-sm"
+      >
+        {validando ? 'Validando…' : 'Validar archivo'}
+      </button>
+    </form>
+  )
+}
+
+
 // ── Componente principal ─────────────────────────────────────────────────────
 
 export default function Admin() {
@@ -599,6 +776,7 @@ export default function Admin() {
           >
             Carga SENA
           </button>
+          {/* Pestaña Secretaría oculta temporalmente (restaurar descomentando)
           <button
             role="tab"
             aria-selected={seccion === 'secretaria'}
@@ -612,6 +790,21 @@ export default function Admin() {
             }`}
           >
             Carga Secretaría
+          </button>
+          */}
+          <button
+            role="tab"
+            aria-selected={seccion === 'cdc'}
+            aria-controls="panel-cdc"
+            id="tab-cdc"
+            onClick={() => setSeccion('cdc')}
+            className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              seccion === 'cdc'
+                ? 'bg-white shadow text-sena'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
+            Carga CDC
           </button>
         </div>
 
@@ -634,7 +827,7 @@ export default function Admin() {
           </div>
         </section>
 
-        {/* Panel Secretaría */}
+        {/* Panel Secretaría oculto temporalmente (restaurar descomentando + la pestaña arriba)
         <section
           id="panel-secretaria"
           role="tabpanel"
@@ -644,12 +837,32 @@ export default function Admin() {
         >
           <div className="bg-bogota px-6 py-4">
             <h2 className="text-white font-bold text-base">Cronograma Secretaría de Bogotá</h2>
-            <p className="text-red-100 text-xs mt-0.5">
+            <p className="text-white text-xs mt-0.5">
               Carga actividades en el formato estándar de la Secretaría
             </p>
           </div>
           <div className="px-6 py-6">
             <SeccionSecretaria token={token} />
+          </div>
+        </section>
+        */}
+
+        {/* Panel CDC */}
+        <section
+          id="panel-cdc"
+          role="tabpanel"
+          aria-labelledby="tab-cdc"
+          hidden={seccion !== 'cdc'}
+          className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+        >
+          <div className="bg-sena px-6 py-4">
+            <h2 className="text-white font-bold text-base">Oferta Centros de Desarrollo Comunitario</h2>
+            <p className="text-white text-xs mt-0.5">
+              Carga la oferta disponible de los CDC (Secretaría de Integración Social)
+            </p>
+          </div>
+          <div className="px-6 py-6">
+            <SeccionCdc token={token} localidades={localidades} />
           </div>
         </section>
 

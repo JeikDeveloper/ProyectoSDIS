@@ -136,15 +136,23 @@ export default function TarjetaActividad({ actividad, onClick }) {
       <div className="relative z-20 px-5 pb-5 flex flex-col gap-2 pointer-events-auto">
         <div className="border-t border-gray-100 pt-3 flex flex-col gap-2">
           <button
-            className="w-full bg-dist hover:bg-dist/80 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full bg-dist hover:bg-dist/80 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-bogota focus-visible:ring-offset-1"
             type="button"
             disabled={cargando}
             onClick={obtenerAudioActividad}
+            aria-label={`${audioUrl ? 'Regenerar' : 'Generar'} audio de la actividad: ${titulo}`}
           >
-            {cargando ? 'Generando audio…' : '🔊 Escuchar actividad'}
+            {cargando ? 'Generando audio…' : audioUrl ? '🔊 Regenerar audio' : '🔊 Generar audio'}
           </button>
 
-          <audio controls src={audioUrl ?? ''} className="w-full h-10 mt-2" />
+          {audioUrl && (
+            <audio
+              controls
+              src={audioUrl}
+              className="w-full h-10 mt-2"
+              aria-label={`Audio de la actividad: ${titulo}`}
+            />
+          )}
 
           <p className="text-xs mt-2 text-dist font-medium opacity-0 group-hover:opacity-100 transition-opacity text-right">
             Ver detalle →

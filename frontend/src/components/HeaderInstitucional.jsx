@@ -24,7 +24,7 @@ export default function HeaderInstitucional() {
             <h1 className="text-2xl font-bold leading-tight">
               Oferta de Actividades y Talleres
             </h1>
-            <p className="text-red-100 text-sm mt-0.5">
+            <p className="text-white text-sm mt-0.5">
               Plataforma de difusión ciudadana — Bogotá y SENA
             </p>
           </div>
