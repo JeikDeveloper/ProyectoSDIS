@@ -9,3 +9,5 @@ pandas
 openpyxl
 python-dotenv==1.0.1
 pydantic-settings==2.2.1
+deepgram-sdk==7.0.0
+PyMySQL==1.2.0
