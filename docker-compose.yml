@@ -1,0 +1,48 @@
+services:
+
+  # ─────────────────────────────────────────
+  #  BACKEND  –  FastAPI + SQLAlchemy + SQLite
+  # ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sdis_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mysql+pymysql://root:test@172.16.0.47:3306/plataforma_bogota
+      SECRET_KEY: clave-secreta-cambiar-en-produccion
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+    volumes:
+      # Persiste la base de datos SQLite fuera del contenedor
+      - ./backend:/app
+      # - sqlite_data:/app/db
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/docs"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  # ─────────────────────────────────────────
+  #  FRONTEND  –  React 19 + Vite
+  # ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sdis_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://172.16.0.47:8000
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
