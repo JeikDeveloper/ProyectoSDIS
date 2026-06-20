@@ -9,15 +9,18 @@ services:
       dockerfile: Dockerfile
     container_name: sdis_backend
     restart: unless-stopped
+    env_file:
+      # Secretos/config (SECRET_KEY, DEEPGRAM_API_KEY, AUDIO_DIR). Está gitignored.
+      - ./backend/.env
     environment:
-      DATABASE_URL: mysql+pymysql://root:test@172.16.0.47:3306/plataforma_bogota
-      SECRET_KEY: clave-secreta-cambiar-en-produccion
+      # SQLite en un volumen persistente (sobreescribe el DATABASE_URL del .env)
+      DATABASE_URL: sqlite:////app/db/plataforma_bogota.db
       ALGORITHM: HS256
       ACCESS_TOKEN_EXPIRE_MINUTES: "60"
     volumes:
-      # Persiste la base de datos SQLite fuera del contenedor
       - ./backend:/app
-      # - sqlite_data:/app/db
+      # BD SQLite persistente fuera del contenedor (sobrevive a reconstrucciones)
+      - sqlite_data:/app/db
     ports:
       - "8000:8000"
     healthcheck:
@@ -37,7 +40,8 @@ services:
     container_name: sdis_frontend
     restart: unless-stopped
     environment:
-      VITE_API_URL: http://172.16.0.47:8000
+      # El proxy de Vite (dentro del contenedor) reenvía /api → servicio backend
+      VITE_PROXY_TARGET: http://backend:8000
     ports:
       - "5173:5173"
     depends_on:
@@ -46,3 +50,6 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+
+volumes:
+  sqlite_data:

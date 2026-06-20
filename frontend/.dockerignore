@@ -1,0 +1,14 @@
+# Dependencias y build (se instalan/generan dentro de la imagen)
+node_modules/
+dist/
+
+# Entorno
+.env
+.env.*
+
+# Git y metadatos
+.git
+.gitignore
+.dockerignore
+Dockerfile
+*.log

@@ -1,0 +1,19 @@
+# Entorno virtual y cachés de Python
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+
+# Secretos y entorno (se inyectan en runtime, NO se hornean en la imagen)
+.env
+.env.*
+
+# Base de datos local (se usa un volumen persistente)
+*.db
+audios/
+
+# Git y metadatos
+.git
+.gitignore
+.dockerignore
+Dockerfile
