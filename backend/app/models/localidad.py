@@ -7,7 +7,7 @@ class Localidad(Base):
     __tablename__ = "localidades"
 
     id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String(100), unique=True, nullable=False)
+    nombre = Column(String(200), unique=True, nullable=False)
     codigo = Column(Integer, unique=True, nullable=False)
 
     actividades = relationship("Actividad", back_populates="localidad")

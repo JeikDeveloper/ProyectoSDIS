@@ -105,6 +105,21 @@ _CAMPOS_NUMERICOS = {
     "duracion_total_meses", "duracion_total_horas",
 }
 
+# Longitud máxima por campo = tamaño real de la columna en el modelo/BD.
+# Evita el error "Data too long" en MySQL (SQLite ignora estos límites, MySQL no).
+_LIMITES = {
+    "hoja_sena":           150,
+    "codigo_sena":         120,
+    "version_sena":        300,
+    "nivel_sena":          250,
+    "red_sena":            600,
+    "iniciativas_sena":    600,
+    "estado_sofia":        200,
+    "campana_sena":        200,
+    "duracion_texto_sena": 200,
+    "requisitos_sena":     2000,  # columna Text
+}
+
 # Campos incluidos en la descripción resumida para el frontend
 _DESC_CAMPOS = [
     ("nivel_sena",          "Nivel"),
@@ -190,8 +205,8 @@ def _procesar_hoja(df_raw: pd.DataFrame, cfg: dict) -> list[dict]:
         lugar = _primera_linea_raw(raw(lugar_col)) or "SENA - Bogotá D.C."
 
         rec: dict = {
-            "titulo":      titulo[:200],
-            "lugar":       lugar[:300],
+            "titulo":      titulo[:500],
+            "lugar":       lugar[:600],
             "tipo":        cfg["tipo"],
             "organizador": "SENA",
             "hoja_sena":   cfg["nombre"],
@@ -206,8 +221,7 @@ def _procesar_hoja(df_raw: pd.DataFrame, cfg: dict) -> list[dict]:
             else:
                 v = _limpia(val_raw)
                 if v:
-                    limite = 2000 if campo == "requisitos_sena" else 300
-                    rec[campo] = v[:limite]
+                    rec[campo] = v[:_LIMITES.get(campo, 300)]
 
         # Descripción resumida para el frontend (primer campo vacío = omitido)
         partes = []

@@ -216,8 +216,8 @@ def procesar_cdc(
         descripcion = " | ".join(partes)[:1000] or None
 
         registros.append({
-            "titulo":       titulo[:200],
-            "lugar":        lugar_full[:300],
+            "titulo":       titulo[:500],
+            "lugar":        lugar_full[:600],
             "tipo":         TIPO_CDC,
             "organizador":  ORGANIZADOR_CDC,
             "fecha_inicio": fi,

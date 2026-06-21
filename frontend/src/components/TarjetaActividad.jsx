@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { sendActividad } from '../services/api';
+import { parseDescripcion } from '../utils/descripcion';
 const TIPO_ESTILOS = {
   Taller: {
     badge: 'bg-dist/10 text-dist border-dist/20',
@@ -99,12 +100,18 @@ export default function TarjetaActividad({ actividad, onClick }) {
           {titulo}
         </h3>
 
-        {/* Descripción */}
-        {descripcion && (
-          <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
-            {descripcion}
-          </p>
-        )}
+        {/* Descripción — resumen limpio (sin el bloque largo de requisitos) */}
+        {(() => {
+          const { textoLibre, datos } = parseDescripcion(descripcion);
+          const resumen =
+            textoLibre ||
+            datos.map((d) => `${d.label}: ${d.value}`).join(' · ');
+          return resumen ? (
+            <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
+              {resumen}
+            </p>
+          ) : null;
+        })()}
 
         {/* Datos */}
         <dl className="mt-auto pt-3 border-t border-gray-100 space-y-1.5 text-xs text-gray-600">

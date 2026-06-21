@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { parseDescripcion } from '../utils/descripcion'
 
 const TIPO_ESTILOS = {
   Taller:    'bg-dist/10 text-dist border-dist/20',
@@ -73,6 +74,8 @@ export default function ModalActividad({ actividad, onCerrar }) {
     ? hora_fin ? `${formatHora(hora_inicio)} – ${formatHora(hora_fin)}` : formatHora(hora_inicio)
     : null
 
+  const { textoLibre, datos, secciones } = parseDescripcion(descripcion)
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -121,23 +124,47 @@ export default function ModalActividad({ actividad, onCerrar }) {
         {/* Cuerpo */}
         <div className="px-6 py-5 space-y-5 max-h-[60vh] overflow-y-auto">
 
-          {descripcion && (
-            <p className="text-sm text-gray-600 leading-relaxed">{descripcion}</p>
+          {/* Texto libre (descripción de Secretaría) */}
+          {textoLibre && (
+            <p className="text-sm text-gray-600 leading-relaxed">{textoLibre}</p>
           )}
 
-          <dl className="space-y-3">
+          {/* Datos clave de ubicación/fecha */}
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3">
             {[
               { label: 'Localidad', valor: localidad },
               { label: 'Lugar',     valor: lugar },
               { label: 'Fecha',     valor: fechaTexto },
               ...(horaTexto ? [{ label: 'Horario', valor: horaTexto }] : []),
             ].map(({ label, valor }) => (
-              <div key={label} className="flex gap-3 text-sm">
-                <dt className="w-20 shrink-0 font-semibold text-gray-600 pt-0.5">{label}</dt>
-                <dd className="text-gray-800 leading-snug">{valor}</dd>
+              <div key={label}>
+                <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{label}</dt>
+                <dd className="text-sm text-gray-800 leading-snug mt-0.5">{valor}</dd>
               </div>
             ))}
           </dl>
+
+          {/* Datos del programa (SENA/CDC: Nivel, Red, Código, Horas…) */}
+          {datos.length > 0 && (
+            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-3 pt-1 border-t border-gray-100">
+              {datos.map(({ label, value }) => (
+                <div key={label}>
+                  <dt className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">{label}</dt>
+                  <dd className="text-sm text-gray-800 leading-snug mt-0.5">{value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
+          {/* Secciones largas con viñetas (Requisitos…) */}
+          {secciones.map(({ label, items }) => (
+            <div key={label} className="pt-1 border-t border-gray-100">
+              <h3 className="text-xs font-semibold text-dist uppercase tracking-wide mb-2">{label}</h3>
+              <ul className="list-disc pl-5 space-y-1 text-sm text-gray-600 leading-relaxed">
+                {items.map((it, i) => <li key={i}>{it}</li>)}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Footer del modal */}

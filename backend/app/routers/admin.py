@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from datetime import date
 from typing import Optional
 
@@ -19,6 +20,20 @@ FORMATOS_PERMITIDOS = (".xlsx", ".csv")
 def _validar_extension(nombre: str):
     if not any(nombre.endswith(ext) for ext in FORMATOS_PERMITIDOS):
         raise HTTPException(status_code=400, detail="Solo se aceptan archivos .xlsx o .csv")
+
+
+@contextmanager
+def _errores_de_carga(db: Session):
+    """Convierte cualquier excepción de la carga (incl. errores de BD) en una
+    respuesta JSON con el motivo real, en vez de un 500 opaco."""
+    try:
+        yield
+    except HTTPException:
+        raise
+    except Exception as exc:  # noqa: BLE001
+        db.rollback()
+        mensaje = str(getattr(exc, "orig", exc)).strip() or str(exc)
+        raise HTTPException(status_code=400, detail=f"Error al cargar los datos: {mensaje}")
 
 
 # ---------------------------------------------------------------------------
@@ -58,7 +73,8 @@ def upload_secretaria(
 ):
     """Inserta los datos del archivo Secretaría en la BD."""
     _validar_extension(file.filename)
-    return procesar_secretaria(file.file.read(), file.filename, db, dry_run=False)
+    with _errores_de_carga(db):
+        return procesar_secretaria(file.file.read(), file.filename, db, dry_run=False)
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +130,8 @@ def upload_sena(
         except ValueError:
             raise HTTPException(status_code=400, detail="fecha_fin inválida, use YYYY-MM-DD")
 
-    return procesar_sena(file.file.read(), localidad, fi, ff, db, dry_run=False)
+    with _errores_de_carga(db):
+        return procesar_sena(file.file.read(), localidad, fi, ff, db, dry_run=False)
 
 
 # ---------------------------------------------------------------------------
@@ -162,4 +179,5 @@ def upload_cdc(
     """Inserta las actividades CDC en la BD."""
     _validar_extension(file.filename)
     fi, ff = _parse_fechas_cdc(fecha_inicio, fecha_fin)
-    return procesar_cdc(file.file.read(), localidad, fi, ff, db, dry_run=False)
+    with _errores_de_carga(db):
+        return procesar_cdc(file.file.read(), localidad, fi, ff, db, dry_run=False)
